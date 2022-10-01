@@ -1,0 +1,18 @@
+#product_form {
+
+  label {
+    display: block;
+    margin-bottom: 10px;
+    margin-top: 10px;
+  }
+
+  select,
+  input {
+    position: absolute;
+    left: 150px;
+  }
+
+  .error {
+    color: red;
+  }
+}

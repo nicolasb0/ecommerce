@@ -1,0 +1,76 @@
+version: '3'
+services:
+  
+  #PHP Service
+  app:
+    build:
+      context: .
+      dockerfile: dockerfiles/dev/php/Dockerfile
+    image: php-dev
+    container_name: php-dev
+    restart: unless-stopped
+    tty: true
+    environment:
+      SERVICE_NAME: app
+      SERVICE_TAGS: dev
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: test
+      DB_USER: user
+      DB_PASSWORD: test
+    working_dir: /app
+    volumes:
+      - ./backend/:/app
+      - /app/vendor/
+    ports:
+      - 8000:8000  
+    networks:
+      - app-network
+
+  frontend:
+    container_name: frontend-dev
+    image: frontend-dev
+    restart: unless-stopped
+    tty: true
+    build:
+      context: .
+      dockerfile: dockerfiles/dev/react/Dockerfile
+    volumes:
+      - ./frontend/src:/app/src
+      - /app/node_modules/
+    ports:
+      - 3000:3000
+    networks:
+      - app-network        
+
+
+  #MySQL Service
+  db:
+    image: mysql:5.6
+    container_name: db
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: test
+      MYSQL_ROOT_PASSWORD: test
+      MYSQL_DATABASE: test
+      MYSQL_USER: user
+      MYSQL_PASSWORD: test
+      SERVICE_NAME: mysql
+    volumes:
+      - dbdata:/var/lib/mysql/
+      - ./backend/my.cnf:/etc/mysql/my.cnf
+      - ./backend/database.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - app-network
+
+#Docker Networks
+networks:
+  app-network:
+    driver: bridge
+#Volumes
+volumes:
+  dbdata:
+    driver: local

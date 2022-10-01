@@ -1,0 +1,8 @@
+**/.env
+**/node_modules
+**/vendor
+**/npm-debug.log
+**/build
+.dockerignore
+**/.git
+**/.DS_Store
