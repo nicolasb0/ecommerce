@@ -17,6 +17,18 @@ interface IErrors {
   weight: string
 };
 
+interface IBody {
+  type: number
+  name: string,
+  sku: string,
+  price: string,
+  size?: string,
+  height?: string,
+  width?: string,
+  length?: string,
+  weight?: string
+};
+
 interface ProductAddProps {
   onCancelClick: () => void,
   onProductSaved: () => void
@@ -207,45 +219,16 @@ class ProductAdd extends React.Component<ProductAddProps, ProductAddState> {
         'Content-Type': 'application/json',
       };
 
-      let body: {
-        type?: number
-        name?: string,
-        sku?: string,
-        price?: string,
-        size?: string,
-        height?: string,
-        width?: string,
-        length?: string,
-        weight?: string
-      } = {};
-
-      switch (this.state.type) {
-        case 1:
-          body.type = this.state.type;
-          body.name = this.state.name;
-          body.sku = this.state.sku;
-          body.price = this.state.price;
-          body.size = this.state.size;
-          break;
-        case 2:
-          body.type = this.state.type;
-          body.name = this.state.name;
-          body.sku = this.state.sku;
-          body.price = this.state.price;
-          body.height = this.state.height;
-          body.width = this.state.width;
-          body.length = this.state.length;
-          break;
-        case 3:
-          body.type = this.state.type;
-          body.name = this.state.name;
-          body.sku = this.state.sku;
-          body.price = this.state.price;
-          body.weight = this.state.weight;
-          break;
-        default:
-          break;
+      const bodyMap: { [key: number]: IBody; } = {
+        1: (({ type, name, sku, price, size }) =>
+          ({ type, name, sku, price, size }))(this.state),
+        2: (({ type, name, sku, price, height, width, length }) =>
+          ({ type, name, sku, price, height, width, length }))(this.state),
+        3: (({ type, name, sku, price, weight }) =>
+          ({ type, name, sku, price, weight }))(this.state)
       };
+
+      let body: IBody = bodyMap[this.state.type];
 
       axios.post('http://localhost:' + process.env.REACT_APP_SERVER_PORT + '/products', body, {
         headers: headers
