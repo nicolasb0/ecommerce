@@ -3,6 +3,7 @@
 namespace Project\Gateways;
 
 use Project\Database;
+use InvalidArgumentException;
 
 class GatewayFactory
 {
@@ -10,19 +11,21 @@ class GatewayFactory
     {
     }
 
+    private static $gatewayMap = [
+        1 => DvdGateway::class,
+        2 => FurnitureGateway::class,
+        3 => BookGateway::class
+    ];
+
     public static function createGateway(int $type, Database $database): ProductGateway
     {
-        switch ($type) {
-            case 1:
-                $gateway = new DvdGateway($database);
-                break;
-            case 2:
-                $gateway = new FurnitureGateway($database);
-                break;
-            case 3:
-                $gateway = new BookGateway($database);
-                break;
+        if (!array_key_exists($type, self::$gatewayMap)) {
+            throw new InvalidArgumentException(
+                'No product type with this number'
+            );
         }
+
+        $gateway = new self::$gatewayMap[$type]($database);
 
         return $gateway;
     }

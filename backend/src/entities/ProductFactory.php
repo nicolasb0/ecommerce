@@ -2,25 +2,29 @@
 
 namespace Project\Entities;
 
+use InvalidArgumentException;
+
 class ProductFactory
 {
     public function __construct()
     {
     }
 
+    private static $productMap = [
+        1 => Dvd::class,
+        2 => Furniture::class,
+        3 => Book::class
+    ];
+
     public static function createProduct(int $type): Product
     {
-        switch ($type) {
-            case 1:
-                $product = new Dvd();
-                break;
-            case 2:
-                $product = new Furniture();
-                break;
-            case 3:
-                $product = new Book();
-                break;
+        if (!array_key_exists($type, self::$productMap)) {
+            throw new InvalidArgumentException(
+                'No product type with this number'
+            );
         }
+
+        $product = new self::$productMap[$type]();
 
         return $product;
     }

@@ -5,6 +5,18 @@ import Furniture from "./Furniture";
 import Book from "./Book";
 import axios from 'axios';
 
+interface IErrors {
+  general: string,
+  name: string,
+  sku: string,
+  price: string,
+  size: string,
+  height: string,
+  width: string,
+  length: string,
+  weight: string
+};
+
 interface ProductAddProps {
   onCancelClick: () => void,
   onProductSaved: () => void
@@ -20,17 +32,7 @@ interface ProductAddState {
   width: string,
   length: string,
   weight: string,
-  errors: {
-    general: string,
-    name: string,
-    sku: string,
-    price: string,
-    size: string,
-    height: string,
-    width: string,
-    length: string,
-    weight: string
-  }
+  errors: IErrors
 };
 
 class ProductAdd extends React.Component<ProductAddProps, ProductAddState> {
@@ -40,6 +42,7 @@ class ProductAdd extends React.Component<ProductAddProps, ProductAddState> {
     this.handleSelectChange = this.handleSelectChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleCancel = this.handleCancel.bind(this);
+    this.createProductMap = this.createProductMap.bind(this);
     this.state = {
       type: 1,
       sku: '',
@@ -277,6 +280,25 @@ class ProductAdd extends React.Component<ProductAddProps, ProductAddState> {
     this.props.onCancelClick();
   };
 
+  createProductMap = (errors: IErrors, type: number) => {
+    const productMap: { [key: number]: JSX.Element; } = {
+      1: <Dvd
+        onInputChange={this.handleInputChange}
+        errors={(({ size }) => ({ size }))(errors)}
+      />,
+      2: <Furniture
+        onInputChange={this.handleInputChange}
+        errors={(({ height, width, length }) => ({ height, width, length }))(errors)}
+      />,
+      3: <Book
+        onInputChange={this.handleInputChange}
+        errors={(({ weight }) => ({ weight }))(errors)}
+      />
+    };
+
+    return productMap[type];
+  };
+
   render() {
     return (
       <div className="product-add">
@@ -300,45 +322,28 @@ class ProductAdd extends React.Component<ProductAddProps, ProductAddState> {
             {this.state.errors.general.length > 0 &&
               <><span className='error'>{this.state.errors.general}</span></>}
             <label htmlFor="sku">SKU
-            <input type="text" id="sku" name="sku" value={this.state.sku} onChange={this.handleInputChange} />
+              <input type="text" id="sku" name="sku" value={this.state.sku} onChange={this.handleInputChange} />
             </label>
             {this.state.errors.sku.length > 0 &&
               <><span className='error'>{this.state.errors.sku}</span></>}
             <label htmlFor="name">Name
-            <input type="text" id="name" name="name" value={this.state.name} onChange={this.handleInputChange} />
+              <input type="text" id="name" name="name" value={this.state.name} onChange={this.handleInputChange} />
             </label>
             {this.state.errors.name.length > 0 &&
               <><span className='error'>{this.state.errors.name}</span></>}
             <label htmlFor="price">Price ($)
-            <input type="text" id="price" name="price" value={this.state.price} onChange={this.handleInputChange} />
+              <input type="text" id="price" name="price" value={this.state.price} onChange={this.handleInputChange} />
             </label>
             {this.state.errors.price.length > 0 &&
               <><span className='error'>{this.state.errors.price}</span></>}
             <label htmlFor="type">Type Switcher
-            <select id="productType" name="type" onChange={this.handleSelectChange} value={this.state.type}>
-              <option id="DVD" value="1">DVD</option>
-              <option id="Furniture" value="2">Furniture</option>
-              <option id="Book" value="3">Book</option>
-            </select>
+              <select id="productType" name="type" onChange={this.handleSelectChange} value={this.state.type}>
+                <option id="DVD" value="1">DVD</option>
+                <option id="Furniture" value="2">Furniture</option>
+                <option id="Book" value="3">Book</option>
+              </select>
             </label>
-            {this.state.type === 1
-              &&
-              <Dvd
-                onInputChange={this.handleInputChange}
-                errors={(({ size }) => ({ size }))(this.state.errors)}
-              />}
-            {this.state.type === 2
-              &&
-              <Furniture
-                onInputChange={this.handleInputChange}
-                errors={(({ height, width, length }) => ({ height, width, length }))(this.state.errors)}
-              />}
-            {this.state.type === 3
-              &&
-              <Book
-                onInputChange={this.handleInputChange}
-                errors={(({ weight }) => ({ weight }))(this.state.errors)}
-              />}
+            {this.createProductMap(this.state.errors, this.state.type)}
           </form>
         </div>
       </div>
